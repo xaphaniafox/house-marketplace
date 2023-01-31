@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
 
@@ -10,6 +11,9 @@ function SignIn() {
     email: '',
     password: '',
   })
+
+  const navigate = useNavigate;
+
   const {email, password} = formData
 
   const onChange = (e) => {
@@ -17,6 +21,21 @@ function SignIn() {
     ...prevState,
     [e.target.id]: e.target.value,
    }))
+  }
+
+  const onSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      const auth = getAuth()
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      if(userCredential.user) {
+        navigate('/')
+      }
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -27,7 +46,7 @@ function SignIn() {
         </header>
 
         <main>
-          <form>
+          <form onSubmit={onSubmit}>
             <input 
               className='emailInput' 
               type='email' 
@@ -54,7 +73,6 @@ function SignIn() {
                 !prevState) }
               />
             </div>
-          </form>
 
             <Link to='/forgot-password' className='forgotPasswordLink'>Forgot Password</Link>
 
@@ -64,6 +82,7 @@ function SignIn() {
                 <ArrowRightIcon fill='#fff' width='34px' height='34px'></ArrowRightIcon>
               </button>
             </div>
+          </form>
 
             {/*Google OAuth*/}
 
